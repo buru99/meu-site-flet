@@ -1,7 +1,8 @@
-import requests
 import flet as ft
 import datetime
+import requests
 import webbrowser
+
 
 def main(page: ft.Page):
     page.adaptive = True
@@ -82,15 +83,15 @@ def main(page: ft.Page):
             mostrar_snackbar("Nenhum produto para salvar.")
             return
 
-        try:
-            response = requests.post('https://web-production-7ce3.up.railway.app/save_report', json={"data": produtos}, verify=False)
-            response.raise_for_status()
-            if response.ok:
-                webbrowser.open(response.url)
-            else:
-                mostrar_snackbar("Erro ao salvar o relatório.", erro=True)
-        except requests.RequestException as ex:
-            mostrar_snackbar(f"Erro ao salvar o relatório: {ex}", erro=True)
+        # Enviar os dados para o servidor Flask
+        response = requests.post('https://web-production-7ce3.up.railway.app//save_report', json={"data": produtos}, verify=False)
+        if response.status_code == 200:
+            # Se a resposta foi bem-sucedida, abrir o link para fazer o download do relatório
+            link_url = response.url
+            webbrowser.open(link_url)
+        else:
+            # Se ocorreu um erro, mostrar uma mensagem de falha
+            mostrar_snackbar("Falha ao salvar o relatório.", erro=True)
 
     description = ft.TextField(label="Descrição", autofocus=True)
     ean_pdt = ft.TextField(label="EAN do Produto")
@@ -112,7 +113,5 @@ def main(page: ft.Page):
                    ft.Row([adc_button, clean_button]), list_container,
                    ft.Container(padding=5)], expand=True)
     )
-
-    page.overlay.append(data)
 
 ft.app(target=main)
