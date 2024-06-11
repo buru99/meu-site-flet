@@ -1,8 +1,6 @@
 import flet as ft
 import datetime
-import urllib.request
-import urllib.error
-import json
+import requests
 import webbrowser
 
 
@@ -85,23 +83,15 @@ def main(page: ft.Page):
             mostrar_snackbar("Nenhum produto para salvar.")
             return
 
-        url = 'https://web-production-7ce3.up.railway.app/save_report'
-        data = json.dumps({"data": produtos}).encode('utf-8')
-        headers = {'Content-Type': 'application/json'}
-
-        try:
-            req = urllib.request.Request(url, data=data, headers=headers)
-            with urllib.request.urlopen(req) as response:
-                if response.status == 200:
-                    # Se a resposta foi bem-sucedida, abrir o link para fazer o download do relatório
-                    link_url = response.geturl()
-                    webbrowser.open(link_url)
-                else:
-                    # Se ocorreu um erro, mostrar uma mensagem de falha
-                    mostrar_snackbar("Falha ao salvar o relatório.", erro=True)
-        except urllib.error.URLError as e:
-            # Se ocorreu um erro de conexão, mostrar uma mensagem de falha
-            mostrar_snackbar("Erro de conexão ao salvar o relatório.", erro=True)
+        # Enviar os dados para o servidor Flask
+        response = requests.post('https://web-production-7ce3.up.railway.app//save_report', json={"data": produtos})
+        if response.status_code == 200:
+            # Se a resposta foi bem-sucedida, abrir o link para fazer o download do relatório
+            link_url = response.url
+            webbrowser.open(link_url)
+        else:
+            # Se ocorreu um erro, mostrar uma mensagem de falha
+            mostrar_snackbar("Falha ao salvar o relatório.", erro=True)
 
     description = ft.TextField(label="Descrição", autofocus=True)
     ean_pdt = ft.TextField(label="EAN do Produto")
