@@ -1,6 +1,6 @@
+import requests
 import flet as ft
 import datetime
-import requests
 import webbrowser
 
 def main(page: ft.Page):
@@ -83,7 +83,7 @@ def main(page: ft.Page):
             return
 
         try:
-            response = requests.post('https://web-production-7ce3.up.railway.app/save_report', json={"data": produtos})
+            response = requests.post('https://web-production-7ce3.up.railway.app/save_report', json={"data": produtos}, verify=False)
             response.raise_for_status()
             if response.ok:
                 webbrowser.open(response.url)
@@ -92,7 +92,6 @@ def main(page: ft.Page):
         except requests.RequestException as ex:
             mostrar_snackbar(f"Erro ao salvar o relatório: {ex}", erro=True)
 
-    # Elementos da UI
     description = ft.TextField(label="Descrição", autofocus=True)
     ean_pdt = ft.TextField(label="EAN do Produto")
     quantidade = ft.TextField(label="Quantidade")
