@@ -3,7 +3,6 @@ import datetime
 import requests
 import webbrowser
 
-
 def main(page: ft.Page):
     page.adaptive = True
     page.title = "Controle de Validade Digital"
