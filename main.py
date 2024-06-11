@@ -3,7 +3,6 @@ import datetime
 import requests
 import webbrowser
 
-
 def main(page: ft.Page):
     page.adaptive = True
     page.title = "Controle de Validade Digital"
@@ -30,9 +29,8 @@ def main(page: ft.Page):
             description.focus()
             return
 
-        try:
-            ean_value = str(ean_pdt.value)
-        except ValueError:
+        ean_value = ean_pdt.value
+        if not ean_value:
             mostrar_snackbar("Por favor, insira um EAN válido.")
             ean_pdt.focus()
             return
@@ -75,10 +73,7 @@ def main(page: ft.Page):
         description.focus()
 
     def mostrar_snackbar(mensagem, erro=False):
-        if erro:
-            page.snack_bar = ft.SnackBar(ft.Text(mensagem), bgcolor='red')
-        else:
-            page.snack_bar = ft.SnackBar(ft.Text(mensagem))
+        page.snack_bar = ft.SnackBar(ft.Text(mensagem), bgcolor='red' if erro else None)
         page.snack_bar.open = True
         page.update()
 
@@ -87,17 +82,17 @@ def main(page: ft.Page):
             mostrar_snackbar("Nenhum produto para salvar.")
             return
 
-        # Enviar os dados para o servidor Flask
-        response = requests.post('https://web-production-7ce3.up.railway.app//save_report', json={"data": produtos})
-        if response.status_code == 200:
-            # Se a resposta foi bem-sucedida, abrir o link para fazer o download do relatório
-            link_url = response.url
-            webbrowser.open(link_url)
-        else:
-            # Se ocorreu um erro, mostrar uma mensagem de falha
-            mostrar_snackbar("Falha ao salvar o relatório.", erro=True)
+        try:
+            response = requests.post('https://web-production-7ce3.up.railway.app/save_report', json={"data": produtos})
+            response.raise_for_status()
+            if response.ok:
+                webbrowser.open(response.url)
+            else:
+                mostrar_snackbar("Erro ao salvar o relatório.", erro=True)
+        except requests.RequestException as ex:
+            mostrar_snackbar(f"Erro ao salvar o relatório: {ex}", erro=True)
 
-    sesion = ft.TextField(label="Seção")
+    # Elementos da UI
     description = ft.TextField(label="Descrição", autofocus=True)
     ean_pdt = ft.TextField(label="EAN do Produto")
     quantidade = ft.TextField(label="Quantidade")
@@ -113,15 +108,12 @@ def main(page: ft.Page):
     botao_data = ft.ElevatedButton("Validade do Produto", icon=ft.icons.CALENDAR_MONTH, on_click=lambda _: data.pick_date())
     clean_button = ft.FloatingActionButton("Limpar Lista", on_click=limpar_tudo, width=100)
 
-    file_picker = ft.FilePicker()
-    page.overlay.append(data)
     page.add(
         ft.Column([description, ean_pdt, quantidade, botao_data,
                    ft.Row([adc_button, clean_button]), list_container,
-                   ft.Container(padding=5)
-                  ], expand=True)
+                   ft.Container(padding=5)], expand=True)
     )
 
-    page.overlay.append(file_picker)
+    page.overlay.append(data)
 
 ft.app(target=main)
