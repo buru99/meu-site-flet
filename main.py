@@ -108,7 +108,7 @@ def main(page: ft.Page):
     botao_data = ft.ElevatedButton("Validade do Produto", icon=ft.icons.CALENDAR_MONTH, on_click=lambda _: data.pick_date())
     clean_button = ft.FloatingActionButton("Limpar Lista", on_click=limpar_tudo, width=100)
 
-    
+    page.overlay.append(data)
     page.add(
         ft.Column([description, ean_pdt, quantidade, botao_data,
                    ft.Row([adc_button, clean_button]), list_container,
