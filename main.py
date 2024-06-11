@@ -84,7 +84,7 @@ def main(page: ft.Page):
             return
 
         # Enviar os dados para o servidor Flask
-        response = requests.post('https://web-production-7ce3.up.railway.app//save_report', json={"data": produtos}, verify=False)
+        response = requests.post('https://web-production-7ce3.up.railway.app//save_report', json={"data": produtos})
         if response.status_code == 200:
             # Se a resposta foi bem-sucedida, abrir o link para fazer o download do relatório
             link_url = response.url
@@ -108,6 +108,7 @@ def main(page: ft.Page):
     botao_data = ft.ElevatedButton("Validade do Produto", icon=ft.icons.CALENDAR_MONTH, on_click=lambda _: data.pick_date())
     clean_button = ft.FloatingActionButton("Limpar Lista", on_click=limpar_tudo, width=100)
 
+    page.overlay.append(data)
     page.add(
         ft.Column([description, ean_pdt, quantidade, botao_data,
                    ft.Row([adc_button, clean_button]), list_container,
